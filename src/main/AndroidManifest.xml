@@ -1,0 +1,4 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 前缀缓存需要联网拉取视频字节 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+</manifest>
