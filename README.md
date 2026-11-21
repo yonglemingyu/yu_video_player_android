@@ -22,9 +22,9 @@ dependencies {
 ## 用法
 
 ```java
-// 1. 容量（可选，默认全局 1GB、单条 16MB）
+// 1. 容量（可选，默认全局 1GB、单条 6MB）
 YUVideoCache.setMaxTotalBytes(1024L * 1024 * 1024);
-YUVideoCache.setMaxBytesPerVideo(16L * 1024 * 1024);
+YUVideoCache.setMaxBytesPerVideo(6L * 1024 * 1024);
 
 // 2. 曝光时预取，失败静默
 YUVideoCache.prefetch(context, vid, realUrl);

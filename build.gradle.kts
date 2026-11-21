@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.github.yonglemingyu"
-version = "1.0.0"
+version = "1.1.0"
 
 android {
     namespace = "dev.yu.videoplayer.core"

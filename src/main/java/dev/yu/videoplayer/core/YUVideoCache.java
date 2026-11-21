@@ -51,20 +51,43 @@ public final class YUVideoCache {
 
     // ---- 配置 ----
 
+    /**
+     * 预取总开关，默认关闭。
+     *
+     * 关闭时不探测总长、不下载前缀，包括首次播放时 {@link #mediaSource} 里
+     * 那次隐式预取。因为 meta 建不出来，缓存链路也就一直不会生效。磁盘上已经
+     * 有的前缀照常命中：播放仍走缓存链路，只是不再往前补。
+     */
+    private static volatile boolean prefetchEnabled = false;
+
+    /** 见 {@link #prefetchEnabled} */
+    public static void setPrefetchEnabled(boolean enabled) {
+        prefetchEnabled = enabled;
+    }
+
+    public static boolean isPrefetchEnabled() {
+        return prefetchEnabled;
+    }
+
     /** 全局可用缓存总量，默认 1GB */
     public static void setMaxTotalBytes(long bytes) {
         YUPrefixCache.maxTotalBytes = Math.max(0, bytes);
     }
 
-    /** 单条视频可缓存的上限，默认 16MB */
+    /** 单条视频可缓存的上限，默认 6MB */
     public static void setMaxBytesPerVideo(long bytes) {
         YUPrefixCache.maxBytesPerVideo = Math.max(0, bytes);
     }
 
     // ---- 预取 ----
 
-    /** 详情页曝光时调用，失败静默，不阻塞任何 UI */
+    /**
+     * 详情页曝光时调用，失败静默，不阻塞任何 UI。
+     *
+     * 预取开关关闭时直接返回，连 IO 线程都不进。
+     */
     public static void prefetch(final Context context, final String vid, final String realUrl) {
+        if (!prefetchEnabled) return;
         final Context app = context.getApplicationContext();
         final YUUrlRenewer renewerNow = renewer;
         schedule(() -> YUPrefixCache.prefetch(app, vid, realUrl, renewerNow));
@@ -85,6 +108,7 @@ public final class YUVideoCache {
         MediaSource cached = cachedMediaSource(context, vid, realUrl, upstream);
         if (cached != null) return cached;
 
+        // 预取开关关闭时这里什么都不做（prefetch 自己短路），直接退回纯网络
         prefetch(context, vid, realUrl);
         return new DefaultMediaSourceFactory(upstream)
                 .createMediaSource(MediaItem.fromUri(realUrl));
@@ -117,7 +141,7 @@ public final class YUVideoCache {
     /**
      * 播放结束：计数减一，归零后才解除淘汰保护（对应 iOS 的 release）。
      *
-     * 减计数必须**同步**执行：丢到 IO 线程的话，队列里可能正卡着一个 16MB 预取，
+     * 减计数必须**同步**执行：丢到 IO 线程的话，队列里可能正卡着一个 6MB 预取，
      * 延迟几十秒后这次 release 会把下一轮播放的标记也减掉。
      * 容量扫描本身仍然异步，避免在 UI 线程扫目录。
      */

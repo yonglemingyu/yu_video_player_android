@@ -9,7 +9,7 @@ import org.json.JSONObject;
  */
 final class YUPrefixMeta {
 
-    static final long DEFAULT_MAX_BYTES_PER_VIDEO = 16L * 1024 * 1024;
+    static final long DEFAULT_MAX_BYTES_PER_VIDEO = 6L * 1024 * 1024;
 
     final long totalLength;
     final long limitBytes;

@@ -36,7 +36,7 @@ public final class YUPrefixCache {
     /** 全局可占用的磁盘上限，默认 1GB */
     public static volatile long maxTotalBytes = 1024L * 1024 * 1024;
 
-    /** 单条视频可占用的上限，默认 16MB */
+    /** 单条视频可占用的上限，默认 6MB */
     public static volatile long maxBytesPerVideo = YUPrefixMeta.DEFAULT_MAX_BYTES_PER_VIDEO;
 
     /** 正在使用某个 vid 的播放器数量；淘汰时跳过大于 0 的条目 */
